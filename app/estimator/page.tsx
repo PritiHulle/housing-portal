@@ -82,7 +82,9 @@ export default function Estimator() {
             // Check if duplicate of last entry
             if (history.length > 0) {
                 const last = history[history.length - 1];
-                const isDuplicate = Object.keys(form).every(k => form[k] === last.details[k]);
+                const isDuplicate = Object.keys(form).every(
+                    (k) => (form as any)[k] === (last.details as any)[k]
+                );
                 if (isDuplicate) {
                     setIsLoading(false);
                     return;
