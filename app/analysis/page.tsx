@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import PredictionChart from "../components/PredictionChart";
-import { headers } from "next/headers";
+// import { headers } from "next/headers";
 
 const FIELDS = [
     { name: "square_footage", label: "Sqft", min: 100, max: 50000, tooltip: "100-50,000 sq ft" },
