@@ -18,10 +18,11 @@ public class MarketDataService {
     @PostConstruct
     public void init() {
         try {
-            // Load Local CSV Training file
-            List<String> lines = Files
-                    .readAllLines(Paths.get("/home/earth/Priti/housing-price-api/data/House Price Dataset.csv"));
-            // Skip CSV header
+            var resource = getClass().getClassLoader().getResource("data/House Price Dataset.csv");
+            if (resource == null) {
+                throw new RuntimeException("CSV file not found in resources");
+            }
+            List<String> lines = Files.readAllLines(Paths.get(resource.toURI()));
             for (int i = 1; i < lines.size(); i++) {
                 String[] parts = lines.get(i).split(",");
                 if (parts.length < 9)
@@ -37,9 +38,9 @@ public class MarketDataService {
                         .price(Double.parseDouble(parts[8].trim()))
                         .build());
             }
-            System.out.println("Loaded " + dataset.size() + " aggregated property records for caching.");
+            System.out.println("Loaded dataset size: " + dataset.size());
         } catch (Exception e) {
-            System.err.println("Failed to load dataset: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
