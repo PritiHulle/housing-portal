@@ -12,7 +12,7 @@ public class WhatIfService {
 
     public WhatIfService() {
         this.restClient = RestClient.builder()
-                .baseUrl("http://127.0.0.1:8000") // Python FastAPI ML Container
+                .baseUrl("https://housing-api-n7yg.onrender.com")
                 .build();
     }
 
