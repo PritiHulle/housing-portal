@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import PredictionChart from "../components/PredictionChart";
+import { headers } from "next/headers";
 
 const FIELDS = [
     { name: "square_footage", label: "Sqft", min: 100, max: 50000, tooltip: "100-50,000 sq ft" },
@@ -51,7 +52,7 @@ export default function AnalysisPage() {
                 return;
             }
 
-            const res = await fetch("http://127.0.0.1:8000/predict", {
+            const res = await fetch("https://housing-api-n7yg.onrender.com/predict", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ data: formatted })

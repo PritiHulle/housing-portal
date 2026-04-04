@@ -39,9 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-market-backend/
+# market-backend/
 node_modules
 .next
 .env
-market-backend/jdk-21.0.2
+# Backend ignore rules
+market-backend/target/
+market-backend/jdk-21.0.2/
 
+# Large files
+*.jar
+*.tar.gz
