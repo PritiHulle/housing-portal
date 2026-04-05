@@ -101,133 +101,155 @@ export default function MarketDashboard() {
         fetchDashboardData();
     };
 
-    const handleExportCSV = () => {
-        const now = new Date().toLocaleString("en-IN");
-        const activeFilter = filter === "all" ? "All Markets" : filter;
+    const handleExportCSV = async () => {
+        const queryParams = new URLSearchParams();
+        if (filter !== "all") queryParams.append("segment", filter);
+        // Using sample values for year range to demonstrate filtering
+        queryParams.append("minYear", "1900");
+        queryParams.append("maxYear", "2025");
 
-        // Section 1: Market Overview Summary
-        const summaryRows = [
-            ["NEXTHOUSE — MARKET ANALYSIS EXPORT"],
-            [`Generated At: ${now}`],
-            [`Active Filter: ${activeFilter}`],
-            [],
-            ["MARKET OVERVIEW"],
-            ["Metric", "Value"],
-            ["Total Properties Analyzed", stats.totalProperties],
-            ["Average Market Value (Rs)", stats.avgPrice],
-            ["Average Square Footage (sqft)", stats.avgSqft],
-            ["Top Market Segment", stats.topSegment],
-            [],
-            ["SEGMENT PRICE DISTRIBUTION"],
-            ["Segment", "Average Price (Rs)"],
-            ...distribution.labels.map((lbl, i) => [
-                lbl,
-                Number(distribution.values[i] ?? 0).toFixed(2),
-            ]),
-        ];
+        try {
+            // Fetch raw data for a professional export
+            const res = await fetch(`/api/market/data?${queryParams.toString()}`);
+            if (!res.ok) throw new Error("Failed to fetch raw data");
+            const rawData = await res.json();
 
-        const csvContent = "\uFEFF" + summaryRows
-            .map(row => row.map(cell => `"${cell}"`).join(","))
-            .join("\n");
+            const headers = ["ID", "Square Footage", "Bedrooms", "Bathrooms", "Year Built", "Lot Size", "Distance to City", "School Rating", "Market Value (Rs)"];
+            const rows = rawData.map((r: any, i: number) => [
+                `PRPTY-${1000 + i}`,
+                r.squareFootage,
+                r.bedrooms,
+                r.bathrooms,
+                r.yearBuilt,
+                r.lotSize,
+                r.distance,
+                r.schoolRating,
+                r.price
+            ]);
 
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", `NextHouse_Market_Export_${new Date().toISOString().slice(0, 10)}.csv`);
-        link.style.visibility = "hidden";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+            const csvContent = "\uFEFF" + [headers, ...rows]
+                .map(row => row.map(cell => `"${cell}"`).join(","))
+                .join("\n");
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `NextHouse_Property_Dataset_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+        } catch (error) {
+            console.error("CSV Export Failed:", error);
+            alert("Could not generate CSV. Please try again.");
+        }
     };
-
 
     const handleDownloadPDF = async () => {
         const { jsPDF } = await import("jspdf");
         const doc = new jsPDF();
-
         const pageW = doc.internal.pageSize.getWidth();
         const now = new Date().toLocaleDateString("en-IN", {
             day: "2-digit", month: "long", year: "numeric"
         });
 
-        // ── Header ──────────────────────────────────────────
-        doc.setFillColor(30, 30, 46);
-        doc.rect(0, 0, pageW, 30, "F");
+        // Fetch raw data for the detailed table in PDF
+        let rawData = [];
+        try {
+            const res = await fetch(`/api/market/data?segment=${filter === 'all' ? '' : filter}`);
+            if (res.ok) rawData = await res.json();
+        } catch (e) {
+            console.error("PDF Data Fetch Failed", e);
+        }
+
+        // ── Professional Header ─────────────────────────────
+        doc.setFillColor(30, 41, 59); // zinc-800
+        doc.rect(0, 0, pageW, 40, "F");
         doc.setTextColor(255, 255, 255);
-        doc.setFontSize(18);
+        doc.setFontSize(22);
         doc.setFont("helvetica", "bold");
-        doc.text("NextHouse — Market Analysis Report", 14, 18);
+        doc.text("NEXTHOUSE ANALYTICS", 14, 22);
 
-        doc.setFontSize(9);
+        doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
-        doc.setTextColor(180, 180, 200);
-        doc.text(`Generated: ${now}`, pageW - 14, 18, { align: "right" });
+        doc.text("Executive Market Summary & Valuation Report", 14, 30);
+        doc.text(`Report Period: FY 2025-26 | Generated: ${now}`, pageW - 14, 30, { align: "right" });
 
-        // ── KPI Section ──────────────────────────────────────
-        doc.setTextColor(30, 30, 30);
-        doc.setFontSize(13);
+        // ── 1. Executive Summary ───────────────────────────
+        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
-        doc.text("Market Overview", 14, 44);
+        doc.text("1. Executive Summary", 14, 55);
+
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        const summaryText = `This report analyzes ${stats.totalProperties.toLocaleString()} property records in the ${filter === 'all' ? 'entire market' : filter + ' segment'}. The average market valuation is currently pegged at Rs ${stats.avgPrice.toLocaleString('en-IN')}, with an average size of ${stats.avgSqft.toLocaleString()} sqft per unit.`;
+        const splitSummary = doc.splitTextToSize(summaryText, pageW - 28);
+        doc.text(splitSummary, 14, 65);
+
+        // ── 2. Key Performance Indicators ──────────────────
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("2. Key Performance Indicators", 14, 85);
 
         const kpis = [
-            ["Total Properties Analyzed", stats.totalProperties.toString()],
-            ["Average Market Value", `Rs ${stats.avgPrice.toLocaleString("en-IN")}`],
-            ["Average Square Footage", `${stats.avgSqft.toLocaleString("en-IN")} sqft`],
-            ["Top Market Segment", stats.topSegment],
-            ["Active Filter", filter === "all" ? "All Markets" : filter],
+            ["Total Sample Size", `${stats.totalProperties.toLocaleString()} Properties`],
+            ["Mean Market Price", `Rs ${stats.avgPrice.toLocaleString('en-IN')}`],
+            ["Mean Property Size", `${stats.avgSqft.toLocaleString()} Sq Ft`],
+            ["Leading Sector", stats.topSegment]
         ];
 
-        let y = 52;
-        doc.setFontSize(10);
-        kpis.forEach(([label, value], i) => {
-            const bg = i % 2 === 0 ? [245, 247, 250] : [255, 255, 255];
-            doc.setFillColor(bg[0], bg[1], bg[2]);
-            doc.rect(14, y - 5, pageW - 28, 10, "F");
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(80, 80, 100);
+        let y = 95;
+        kpis.forEach(([label, value]) => {
+            doc.setFillColor(248, 250, 252);
+            doc.rect(14, y - 5, pageW / 2 - 20, 10, "F");
+            doc.setFont("helvetica", "bold");
             doc.text(label, 18, y + 1);
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(30, 30, 46);
-            doc.text(value, pageW - 18, y + 1, { align: "right" });
-            y += 11;
-        });
-
-        // ── Segment Distribution ─────────────────────────────
-        y += 10;
-        doc.setTextColor(30, 30, 30);
-        doc.setFontSize(13);
-        doc.setFont("helvetica", "bold");
-        doc.text("Segment Price Distribution", 14, y);
-        y += 8;
-
-        const segments = distribution.labels.map((lbl, i) => [
-            lbl,
-            `Rs ${Number(distribution.values[i] ?? 0).toLocaleString("en-IN")}`,
-        ]);
-
-        segments.forEach(([seg, val], i) => {
-            const bg = i % 2 === 0 ? [240, 253, 244] : [255, 255, 255];
-            doc.setFillColor(bg[0], bg[1], bg[2]);
-            doc.rect(14, y - 5, pageW - 28, 10, "F");
             doc.setFont("helvetica", "normal");
-            doc.setTextColor(60, 80, 60);
-            doc.text(seg, 18, y + 1);
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(30, 30, 46);
-            doc.text(val, pageW - 18, y + 1, { align: "right" });
-            y += 11;
+            doc.text(value, pageW / 2, y + 1);
+            y += 12;
         });
 
-        // ── Footer ───────────────────────────────────────────
-        doc.setDrawColor(200, 200, 220);
-        doc.line(14, 280, pageW - 14, 280);
+        // ── 3. Sample Property Inventory ───────────────────
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("3. Representative Property Sample", 14, 155);
+
+        doc.setFontSize(9);
+        doc.setTextColor(100, 116, 139);
+        doc.text("Top 8 properties from the current filtered inventory for reference:", 14, 162);
+
+        const tableHeaders = ["Ref ID", "Beds", "Baths", "Year", "Sqft", "Price (INR)"];
+        let tableY = 175;
+
+        // Table Header
+        doc.setFillColor(241, 245, 249);
+        doc.rect(14, tableY - 6, pageW - 28, 9, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(51, 65, 85);
+        tableHeaders.forEach((h, i) => doc.text(h, 18 + (i * 30), tableY));
+
+        // Table Rows
+        doc.setFont("helvetica", "normal");
+        rawData.slice(0, 8).forEach((item: any, idx: number) => {
+            tableY += 10;
+            if (idx % 2 === 0) {
+                doc.setFillColor(252, 253, 254);
+                doc.rect(14, tableY - 6, pageW - 28, 9, "F");
+            }
+            doc.text(`NX-${1000 + idx}`, 18, tableY);
+            doc.text(String(item.bedrooms), 48, tableY);
+            doc.text(String(item.bathrooms), 78, tableY);
+            doc.text(String(item.yearBuilt), 108, tableY);
+            doc.text(String(item.squareFootage), 138, tableY);
+            doc.text(`Rs ${item.price.toLocaleString()}`, 168, tableY);
+        });
+
+        // ── Footer ──────────────────────────────────────────
+        doc.setDrawColor(226, 232, 240);
+        doc.line(14, 275, pageW - 14, 275);
         doc.setFontSize(8);
         doc.setFont("helvetica", "italic");
-        doc.setTextColor(150, 150, 170);
-        doc.text("Powered by NextHouse Analytics — Java 21 + Python ML Engine", 14, 286);
-        doc.text("Page 1 of 1", pageW - 14, 286, { align: "right" });
+        doc.setTextColor(148, 163, 184);
+        doc.text("Confidential Report — For Internal Use Only | Powered by NextHouse AI", 14, 282);
+        doc.text(`Page 1 of 1`, pageW - 14, 282, { align: "right" });
 
         doc.save(`NextHouse_Market_Report_${now.replace(/ /g, "_")}.pdf`);
     };

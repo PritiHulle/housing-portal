@@ -72,6 +72,24 @@ public class MarketDataService {
                 "topSegment", total > 0 ? "Analyzed Slice" : "N/A");
     }
 
+    public List<HouseRecord> getRawData(String segment, Integer minYear, Integer maxYear) {
+        return dataset.stream().filter(r -> {
+            if (minYear != null && r.getYearBuilt() < minYear)
+                return false;
+            if (maxYear != null && r.getYearBuilt() > maxYear)
+                return false;
+            if (segment != null && !segment.equals("all")) {
+                if (segment.equals("luxury") && r.getPrice() <= 300000)
+                    return false;
+                if (segment.equals("mid") && (r.getPrice() < 200000 || r.getPrice() > 300000))
+                    return false;
+                if (segment.equals("starter") && r.getPrice() >= 200000)
+                    return false;
+            }
+            return true;
+        }).limit(100).toList(); // Limiting to top 100 for performance/report size
+    }
+
     public List<Double> getDistribution() {
         double starterAvg = dataset.stream().filter(r -> r.getPrice() < 200000).mapToDouble(HouseRecord::getPrice)
                 .average().orElse(0.0);

@@ -272,7 +272,7 @@ export default function AnalysisPage() {
                                                     setResults(item.results);
                                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                                 }}
-                                                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                                className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/20 dark:border-blue-400/20 px-4 py-1.5 rounded-full hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-zinc-950 transition-all active:scale-95 shadow-sm transform-gpu"
                                             >
                                                 Restore Analysis
                                             </button>

@@ -1,11 +1,13 @@
 package com.nexthouse.market.controller;
 
+import com.nexthouse.market.model.HouseRecord;
 import com.nexthouse.market.service.MarketDataService;
 import com.nexthouse.market.service.WhatIfService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -29,6 +31,14 @@ public class MarketController {
         return ResponseEntity.ok(Map.of(
                 "labels", java.util.List.of("Starter (<200k)", "Mid-Tier (200k-300k)", "Luxury (>300k)"),
                 "values", marketDataService.getDistribution()));
+    }
+
+    @GetMapping("/data")
+    public ResponseEntity<List<HouseRecord>> getRawData(
+            @RequestParam(required = false) String segment,
+            @RequestParam(required = false) Integer minYear,
+            @RequestParam(required = false) Integer maxYear) {
+        return ResponseEntity.ok(marketDataService.getRawData(segment, minYear, maxYear));
     }
 
     @PostMapping("/what-if")
