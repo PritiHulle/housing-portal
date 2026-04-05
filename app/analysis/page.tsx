@@ -114,8 +114,13 @@ export default function AnalysisPage() {
             <div className="bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-white/5 rounded-2xl shadow-md dark:shadow-xl overflow-hidden backdrop-blur-xl mb-8 overflow-x-auto">
                 <div className="min-w-[800px]">
                     {/* Table Header */}
-                    <div className="grid grid-cols-8 gap-4 p-5 border-b border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-zinc-950/40 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                        {FIELDS.map(f => <div key={f.name}>{f.label}</div>)}
+                    <div className="grid grid-cols-8 gap-4 p-5 border-b border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-zinc-950/40 text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                        {FIELDS.map(f => (
+                            <div key={f.name}>
+                                <div>{f.label}</div>
+                                <div className="text-[8px] font-normal opacity-70 mt-0.5 lowercase">{f.tooltip}</div>
+                            </div>
+                        ))}
                         <div className="text-right">Actions</div>
                     </div>
 
@@ -162,6 +167,17 @@ export default function AnalysisPage() {
                         <span className="w-2 h-6 rounded bg-emerald-500 inline-block animate-pulse"></span>
                         Analysis Results
                     </h3>
+
+                    {results.some(r => r === 0) && (
+                        <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-600 dark:text-amber-400 text-sm flex gap-3 items-center shadow-sm">
+                            <span className="text-xl">⚠️</span>
+                            <div>
+                                <p className="font-bold">Anomalous Predictions Detected</p>
+                                <p className="opacity-90">One or more properties returned a ₹ 0 value. This usually happens when inputs (like Lot Size or Sqft) are significantly outside normal market ranges. Try using values closer to the suggested limits below.</p>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
                         {results.map((val, i) => (
                             <div key={i} className="bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-2xl p-5 shadow-md dark:shadow-lg isolate overflow-hidden relative group hover:border-emerald-500/40 transition-colors">

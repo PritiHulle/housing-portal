@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
     const path = (await params).path.join("/");
+    // Audit Fix: Simulated Internal Auth
+    const appService = request.headers.get("X-App-Service");
+    if (appService !== "housing-portal-client") {
+        return NextResponse.json({ error: "Unauthorized access" }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const targetUrl = `https://market-backend-fb2j.onrender.com/api/market/${path}?${searchParams.toString()}`;
 
@@ -25,6 +31,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
 
 export async function POST(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
     const path = (await params).path.join("/");
+    // Audit Fix: Simulated Internal Auth
+    const appService = request.headers.get("X-App-Service");
+    if (appService !== "housing-portal-client") {
+        return NextResponse.json({ error: "Unauthorized access" }, { status: 403 });
+    }
+
     const body = await request.json();
     const targetUrl = `https://market-backend-fb2j.onrender.com/api/market/${path}`;
 

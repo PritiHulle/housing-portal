@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
     try {
+        // Audit Fix: Simulated Internal Auth
+        // Only allow requests with our internal service header
+        const appService = request.headers.get("X-App-Service");
+        if (appService !== "housing-portal-client") {
+            return NextResponse.json({ error: "Unauthorized access" }, { status: 403 });
+        }
+
         const body = await request.json();
 
         // Call the original Render API from the server side (bypasses CORS)

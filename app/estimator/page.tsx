@@ -125,13 +125,21 @@ export default function Estimator() {
                                 required
                                 min={FIELD_RULES[name]?.min}
                                 max={FIELD_RULES[name]?.max}
-                                title={FIELD_RULES[name]?.tooltip}
                                 className="w-full bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-300 dark:border-white/5 rounded-xl px-4 py-3 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
                             />
+                            <p className="text-[10px] text-zinc-400 dark:text-zinc-500 ml-1">
+                                {FIELD_RULES[name]?.tooltip}
+                            </p>
                         </div>
                     ))}
 
                     <div className="md:col-span-2 mt-4">
+                        {showLatestResult && history.length > 0 && history[0].result === 0 && (
+                            <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-600 dark:text-amber-400 text-xs flex gap-2 items-center">
+                                <span>⚠️</span>
+                                <span>Unusual input combination detected. Try adjusting square footage or lot size for a better estimate.</span>
+                            </div>
+                        )}
                         <button
                             type="submit"
                             disabled={isLoading}
