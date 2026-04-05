@@ -121,7 +121,6 @@ export default function Estimator() {
     };
 
     // The current active result to show in the big card is the latest one
-    // The current active result to show in the big card is the first one in the reversed history
     const latestResult = history.length > 0 ? history[0].result : null;
 
     const clearHistory = () => {
@@ -133,17 +132,17 @@ export default function Estimator() {
         <div className="max-w-4xl mx-auto mt-10 pb-20">
 
             <div className="text-center mb-10">
-                <h1 className="text-4xl font-extrabold tracking-tight text-white mb-3">Property Value Estimator</h1>
-                <p className="text-zinc-400">Enter the details of a property to get a data-driven market estimate.</p>
+                <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white mb-3">Property Value Estimator</h1>
+                <p className="text-zinc-600 dark:text-zinc-400">Enter the details of a property to get a data-driven market estimate.</p>
             </div>
 
-            <div className="bg-zinc-900/40 backdrop-blur-2xl border border-white/5 rounded-3xl shadow-xl p-8 lg:p-10 relative overflow-hidden mb-12">
-                <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-64 bg-indigo-500/20 blur-[120px] rounded-full pointer-events-none" />
+            <div className="bg-white dark:bg-zinc-900/40 backdrop-blur-2xl border border-zinc-200 dark:border-white/5 rounded-3xl shadow-md dark:shadow-xl p-8 lg:p-10 relative overflow-hidden mb-12">
+                <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-64 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none" />
 
                 <form onSubmit={handleSubmit} className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
                     {Object.entries(form).map(([key, val]) => (
                         <div key={key} className={key === 'school_rating' ? "md:col-span-2" : ""}>
-                            <label htmlFor={key} className="block text-sm font-medium text-zinc-300 mb-2">
+                            <label htmlFor={key} className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                                 {FIELD_LABELS[key] || key}
                             </label>
                             <input
@@ -158,7 +157,7 @@ export default function Estimator() {
                                 min={FIELD_RULES[key]?.min}
                                 max={FIELD_RULES[key]?.max}
                                 title={FIELD_RULES[key]?.tooltip}
-                                className="w-full bg-zinc-950/50 border border-white/5 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
+                                className="w-full bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-300 dark:border-white/5 rounded-xl px-4 py-3 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
                             />
                         </div>
                     ))}
@@ -182,11 +181,11 @@ export default function Estimator() {
                         <div className="absolute -top-10 -right-10 p-8 opacity-20 pointer-events-none">
                             <svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
                         </div>
-                        <h3 className="text-emerald-400 flex items-center gap-2 font-semibold mb-3 tracking-wide uppercase text-sm">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <h3 className="text-emerald-600 dark:text-emerald-400 flex items-center gap-2 font-semibold mb-3 tracking-wide uppercase text-sm">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             Latest Estimated Market Value
                         </h3>
-                        <h2 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-emerald-500">
+                        <h2 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-700 dark:from-emerald-300 dark:to-emerald-500">
                             ₹ {latestResult.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                         </h2>
                     </div>
@@ -197,33 +196,33 @@ export default function Estimator() {
             {history.length > 0 && (
                 <div className="mt-12 animate-in fade-in slide-in-from-bottom-5 duration-700">
                     <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                        <h2 className="text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-3">
                             <span className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-400"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-500 dark:text-indigo-400"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </span>
                             Estimation History
                         </h2>
-                        <button onClick={clearHistory} className="text-sm text-zinc-500 hover:text-red-400 transition-colors flex items-center gap-1">
+                        <button onClick={clearHistory} className="text-sm text-zinc-500 hover:text-red-500 transition-colors flex items-center gap-1">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
                             Clear History
                         </button>
                     </div>
 
-                    <div className="bg-zinc-900/60 border border-white/5 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-xl">
+                    <div className="bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-white/5 rounded-3xl overflow-hidden shadow-md dark:shadow-2xl backdrop-blur-xl">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
-                                <thead className="bg-zinc-950/50 text-xs font-bold text-zinc-500 uppercase tracking-widest border-b border-white/10">
+                                <thead className="bg-zinc-50 dark:bg-zinc-950/50 text-xs font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-widest border-b border-zinc-200 dark:border-white/10">
                                     <tr>
-                                        <th className="px-6 py-5">Date & Time</th>
+                                        <th className="px-6 py-5">Date &amp; Time</th>
                                         <th className="px-6 py-5">Sqft</th>
                                         <th className="px-6 py-5">Beds/Baths</th>
                                         <th className="px-6 py-5">Value</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-white/5">
+                                <tbody className="divide-y divide-zinc-100 dark:divide-white/5">
                                     {history.map((record) => (
-                                        <tr key={record.id} className="hover:bg-white/[0.02] transition-colors group">
-                                            <td className="px-6 py-5 text-sm text-zinc-400">
+                                        <tr key={record.id} className="hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors group">
+                                            <td className="px-6 py-5 text-sm text-zinc-500 dark:text-zinc-400">
                                                 {new Date(record.timestamp).toLocaleString('en-IN', {
                                                     day: '2-digit',
                                                     month: '2-digit',
@@ -233,10 +232,10 @@ export default function Estimator() {
                                                     hour12: true
                                                 }).toLowerCase()}
                                             </td>
-                                            <td className="px-6 py-5 text-sm font-medium text-zinc-300">{record.details.square_footage}</td>
-                                            <td className="px-6 py-5 text-sm text-zinc-400">{record.details.bedrooms} / {record.details.bathrooms}</td>
+                                            <td className="px-6 py-5 text-sm font-medium text-zinc-700 dark:text-zinc-300">{record.details.square_footage}</td>
+                                            <td className="px-6 py-5 text-sm text-zinc-500 dark:text-zinc-400">{record.details.bedrooms} / {record.details.bathrooms}</td>
                                             <td className="px-6 py-5">
-                                                <span className="text-sm font-bold text-emerald-400">₹ {record.result.toLocaleString('en-IN')}</span>
+                                                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">₹ {record.result.toLocaleString('en-IN')}</span>
                                             </td>
                                         </tr>
                                     ))}

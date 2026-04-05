@@ -237,13 +237,13 @@ export default function MarketDashboard() {
         <div className="max-w-7xl mx-auto mt-8 pb-20">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-4">
                 <div>
-                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500 mb-2">
+                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600 mb-2">
                         Market Analysis Dashboard
                     </h1>
-                    <p className="text-zinc-400">Comprehensive property market statistics & trends (Powered by Java 21).</p>
+                    <p className="text-zinc-600 dark:text-zinc-400">Comprehensive property market statistics &amp; trends (Powered by Java 21).</p>
                 </div>
                 <div className="flex gap-3">
-                    <button onClick={handleExportCSV} className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-white/10 rounded-xl text-sm font-medium text-white shadow-sm transition-all flex items-center gap-2">
+                    <button onClick={handleExportCSV} className="px-5 py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-white/10 rounded-xl text-sm font-medium text-zinc-800 dark:text-white shadow-sm transition-all flex items-center gap-2">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></svg>
                         Export CSV
                     </button>
@@ -256,69 +256,69 @@ export default function MarketDashboard() {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-xl">
-                    <h3 className="text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Total Analyzed</h3>
-                    <p className="text-3xl font-bold text-white">{stats.totalProperties.toLocaleString()}</p>
+                <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-2xl backdrop-blur-xl shadow-sm dark:shadow-none">
+                    <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Total Analyzed</h3>
+                    <p className="text-3xl font-bold text-zinc-900 dark:text-white">{stats.totalProperties.toLocaleString()}</p>
                 </div>
-                <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-xl">
-                    <h3 className="text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Avg Market Value</h3>
-                    <p className="text-3xl font-bold text-emerald-400">₹ {stats.avgPrice.toLocaleString('en-IN')}</p>
+                <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-2xl backdrop-blur-xl shadow-sm dark:shadow-none">
+                    <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Avg Market Value</h3>
+                    <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">₹ {stats.avgPrice.toLocaleString('en-IN')}</p>
                 </div>
-                <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-xl">
-                    <h3 className="text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Avg Square Footage</h3>
-                    <p className="text-3xl font-bold text-blue-400">{stats.avgSqft.toLocaleString('en-IN')} sqft</p>
+                <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-2xl backdrop-blur-xl shadow-sm dark:shadow-none">
+                    <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Avg Square Footage</h3>
+                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.avgSqft.toLocaleString('en-IN')} sqft</p>
                 </div>
-                <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-xl">
-                    <h3 className="text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Top Segment</h3>
-                    <p className="text-2xl font-bold text-purple-400">{stats.topSegment}</p>
+                <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-2xl backdrop-blur-xl shadow-sm dark:shadow-none">
+                    <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Top Segment</h3>
+                    <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.topSegment}</p>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Filters Sidebar */}
-                <div className="bg-zinc-900/40 border border-white/5 rounded-3xl p-6 backdrop-blur-xl h-fit">
-                    <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                <div className="bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-white/5 rounded-3xl p-6 backdrop-blur-xl h-fit shadow-sm dark:shadow-none">
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
                         Market Filters
                     </h3>
 
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-2">Property Segment</label>
+                            <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">Property Segment</label>
                             <select
-                                className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-4 py-3 text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 value={filter}
                                 onChange={(e) => setFilter(e.target.value)}
                             >
                                 <option value="all">All Markets</option>
-                                <option value="luxury">Luxury (&#x3E; ₹3L)</option>
+                                <option value="luxury">Luxury (&gt; ₹3L)</option>
                                 <option value="mid">Mid-Tier (₹2L - ₹3L)</option>
-                                <option value="starter">Starter (&#x3C; ₹2L)</option>
+                                <option value="starter">Starter (&lt; ₹2L)</option>
                             </select>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-2">Year Built Range</label>
+                            <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">Year Built Range</label>
                             <div className="flex items-center gap-3">
-                                <input type="number" min="1800" max="2026" placeholder="Min" value={minYear} onChange={(e) => setMinYear(e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-3 py-2 text-white" />
-                                <span className="text-zinc-600">-</span>
-                                <input type="number" min="1800" max="2026" placeholder="Max" value={maxYear} onChange={(e) => setMaxYear(e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-3 py-2 text-white" />
+                                <input type="number" min="1800" max="2026" placeholder="Min" value={minYear} onChange={(e) => setMinYear(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                                <span className="text-zinc-400">-</span>
+                                <input type="number" min="1800" max="2026" placeholder="Max" value={maxYear} onChange={(e) => setMaxYear(e.target.value)} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-blue-500" />
                             </div>
                         </div>
 
-                        <button onClick={handleApplyFilters} className="w-full py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-medium transition-colors border border-white/10 mt-4">
+                        <button onClick={handleApplyFilters} className="w-full py-3 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-800 dark:text-white rounded-xl font-medium transition-colors border border-zinc-300 dark:border-white/10 mt-4">
                             Apply Filters
                         </button>
                     </div>
 
                     {/* Filling the space below filters */}
-                    <div className="mt-8 pt-8 border-t border-white/5 animate-in fade-in duration-1000">
+                    <div className="mt-8 pt-8 border-t border-zinc-200 dark:border-white/5 animate-in fade-in duration-1000">
                         <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 px-2">Market Share Insights</h4>
-                        <div className="bg-zinc-950/40 rounded-2xl p-4 border border-white/5 aspect-square relative group">
+                        <div className="bg-zinc-50 dark:bg-zinc-950/40 rounded-2xl p-4 border border-zinc-200 dark:border-white/5 aspect-square relative group">
                             <div className="absolute inset-0 bg-blue-500/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             <DistributionPieChart labels={distribution.labels} values={distribution.values} />
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-center">
-                                <span className="text-[10px] font-black text-zinc-600 uppercase tracking-tighter">Segment<br />Mix</span>
+                                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-tighter">Segment<br />Mix</span>
                             </div>
                         </div>
                     </div>
@@ -327,9 +327,9 @@ export default function MarketDashboard() {
                 {/* Main Content Area */}
                 <div className="lg:col-span-2 space-y-8">
                     {/* Visualizations Representation */}
-                    <div className="bg-zinc-900/60 border border-white/5 rounded-3xl p-8 shadow-xl backdrop-blur-xl overflow-hidden">
-                        <h3 className="text-xl font-bold text-white mb-6">Average Price by Segment</h3>
-                        <div className="flex items-center justify-center bg-zinc-950/50 rounded-xl border border-white/5 p-4 pl-0">
+                    <div className="bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-white/5 rounded-3xl p-8 shadow-sm dark:shadow-xl backdrop-blur-xl overflow-hidden">
+                        <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-6">Average Price by Segment</h3>
+                        <div className="flex items-center justify-center bg-zinc-50 dark:bg-zinc-950/50 rounded-xl border border-zinc-200 dark:border-white/5 p-4 pl-0">
                             <div className="w-full max-w-2xl">
                                 <PredictionChart results={distribution.values} labels={distribution.labels} />
                             </div>
@@ -337,16 +337,16 @@ export default function MarketDashboard() {
                     </div>
 
                     {/* What-If Tool Preview */}
-                    <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-indigo-500/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
+                    <div className="bg-gradient-to-br from-indigo-50 dark:from-indigo-900/40 to-purple-50 dark:to-purple-900/40 border border-indigo-200 dark:border-indigo-500/20 rounded-3xl p-8 shadow-sm dark:shadow-2xl relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity">
                             <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
                         </div>
-                        <h3 className="text-2xl font-bold text-indigo-400 mb-3 flex items-center gap-2">
+                        <h3 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-3 flex items-center gap-2">
                             <span className="w-2 h-8 rounded-full bg-indigo-500 inline-block animate-pulse"></span>
-                            "What-If" Analysis Engine
+                            &ldquo;What-If&rdquo; Analysis Engine
                         </h3>
-                        <p className="text-zinc-400 mb-8 leading-relaxed max-w-xl">
-                            Simulate broader market changes using our **Python ML Engine**.
+                        <p className="text-zinc-600 dark:text-zinc-400 mb-8 leading-relaxed max-w-xl">
+                            Simulate broader market changes using our <strong>Python ML Engine</strong>.
                             Explore how adjustments in property features affect projected values in real-time. How would a different build year or school rating shift the price?
                         </p>
                         <button
@@ -363,44 +363,44 @@ export default function MarketDashboard() {
             {/* Simulator Modal */}
             {showSimulator && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-                    <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 max-w-2xl w-full shadow-2xl relative overflow-hidden">
+                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-3xl p-8 max-w-2xl w-full shadow-2xl relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500" />
 
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-white">Market Simulator</h2>
-                            <button onClick={() => setShowSimulator(false)} className="text-zinc-500 hover:text-white transition-colors">
+                            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Market Simulator</h2>
+                            <button onClick={() => setShowSimulator(false)} className="text-zinc-400 hover:text-zinc-700 dark:hover:text-white transition-colors">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                             </button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 mb-8">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-zinc-400">Sqft</label>
-                                <input type="number" required value={simulationParams.square_footage} onChange={e => setSimulationParams({ ...simulationParams, square_footage: e.target.value })} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" />
+                                <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Sqft</label>
+                                <input type="number" required value={simulationParams.square_footage} onChange={e => setSimulationParams({ ...simulationParams, square_footage: e.target.value })} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-4 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-zinc-400">Bedrooms</label>
-                                <input type="number" required value={simulationParams.bedrooms} onChange={e => setSimulationParams({ ...simulationParams, bedrooms: e.target.value })} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" />
+                                <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Bedrooms</label>
+                                <input type="number" required value={simulationParams.bedrooms} onChange={e => setSimulationParams({ ...simulationParams, bedrooms: e.target.value })} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-4 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-zinc-400">Bathrooms</label>
-                                <input type="number" required value={simulationParams.bathrooms} onChange={e => setSimulationParams({ ...simulationParams, bathrooms: e.target.value })} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" />
+                                <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Bathrooms</label>
+                                <input type="number" required value={simulationParams.bathrooms} onChange={e => setSimulationParams({ ...simulationParams, bathrooms: e.target.value })} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-4 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-zinc-400">Year Built</label>
-                                <input type="number" required value={simulationParams.year_built} onChange={e => setSimulationParams({ ...simulationParams, year_built: e.target.value })} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" />
+                                <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Year Built</label>
+                                <input type="number" required value={simulationParams.year_built} onChange={e => setSimulationParams({ ...simulationParams, year_built: e.target.value })} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-4 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-zinc-400">Lot Size</label>
-                                <input type="number" required value={simulationParams.lot_size} onChange={e => setSimulationParams({ ...simulationParams, lot_size: e.target.value })} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" />
+                                <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Lot Size</label>
+                                <input type="number" required value={simulationParams.lot_size} onChange={e => setSimulationParams({ ...simulationParams, lot_size: e.target.value })} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-4 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-zinc-400">Dist to Center</label>
-                                <input type="number" required value={simulationParams.distance_to_city_center} onChange={e => setSimulationParams({ ...simulationParams, distance_to_city_center: e.target.value })} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" />
+                                <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Dist to Center</label>
+                                <input type="number" required value={simulationParams.distance_to_city_center} onChange={e => setSimulationParams({ ...simulationParams, distance_to_city_center: e.target.value })} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-4 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                             </div>
                             <div className="space-y-2 col-span-2">
-                                <label className="text-sm font-medium text-zinc-400">School Rating</label>
-                                <input type="number" required step="0.1" value={simulationParams.school_rating} onChange={e => setSimulationParams({ ...simulationParams, school_rating: e.target.value })} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" />
+                                <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">School Rating</label>
+                                <input type="number" required step="0.1" value={simulationParams.school_rating} onChange={e => setSimulationParams({ ...simulationParams, school_rating: e.target.value })} className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-white/10 rounded-xl px-4 py-2 text-zinc-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                             </div>
                         </div>
 
@@ -408,15 +408,15 @@ export default function MarketDashboard() {
                             <button
                                 onClick={handleRunSimulation}
                                 disabled={isSimulating}
-                                className={`w-full py-4 rounded-xl font-bold text-white transition-all ${isSimulating ? 'bg-zinc-800' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-[0_0_20px_rgba(79,70,229,0.4)]'}`}
+                                className={`w-full py-4 rounded-xl font-bold text-white transition-all ${isSimulating ? 'bg-zinc-300 dark:bg-zinc-800' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-[0_0_20px_rgba(79,70,229,0.4)]'}`}
                             >
                                 {isSimulating ? "Running ML Simulation..." : "Execute Simulation"}
                             </button>
 
                             {simulationResult !== null && (
                                 <div className="w-full bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <p className="text-emerald-400 text-sm font-semibold uppercase tracking-wider mb-1">Simulated Market Value</p>
-                                    <h2 className="text-3xl font-black text-white">₹ {simulationResult.toLocaleString('en-IN')}</h2>
+                                    <p className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold uppercase tracking-wider mb-1">Simulated Market Value</p>
+                                    <h2 className="text-3xl font-black text-zinc-900 dark:text-white">₹ {simulationResult.toLocaleString('en-IN')}</h2>
                                 </div>
                             )}
                         </div>
