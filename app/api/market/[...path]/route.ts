@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request, { params }: { params: { path: string[] } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
     const path = (await params).path.join("/");
     const { searchParams } = new URL(request.url);
     const targetUrl = `https://market-backend-fb2j.onrender.com/api/market/${path}?${searchParams.toString()}`;
@@ -23,7 +23,7 @@ export async function GET(request: Request, { params }: { params: { path: string
     }
 }
 
-export async function POST(request: Request, { params }: { params: { path: string[] } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
     const path = (await params).path.join("/");
     const body = await request.json();
     const targetUrl = `https://market-backend-fb2j.onrender.com/api/market/${path}`;
