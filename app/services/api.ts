@@ -20,3 +20,46 @@ export async function predictPropertyPrice(data: any) {
 
     return await res.json();
 }
+
+/**
+ * Audit Fix: Centralized Market Data Service
+ * Ensures all dashboard calls use consistent security headers
+ */
+const COMMON_HEADERS = {
+    "Content-Type": "application/json",
+    "X-App-Service": "housing-portal-client"
+};
+
+export async function fetchMarketStats(queryString: string = "") {
+    const res = await fetch(`/api/market/stats${queryString}`, {
+        headers: COMMON_HEADERS
+    });
+    if (!res.ok) throw new Error("Market Stats Failed");
+    return await res.json();
+}
+
+export async function fetchMarketDistribution() {
+    const res = await fetch(`/api/market/distribution`, {
+        headers: COMMON_HEADERS
+    });
+    if (!res.ok) throw new Error("Distribution Failed");
+    return await res.json();
+}
+
+export async function runMarketSimulation(payload: any) {
+    const res = await fetch(`/api/market/what-if`, {
+        method: "POST",
+        headers: COMMON_HEADERS,
+        body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Simulation Failed");
+    return await res.json();
+}
+
+export async function fetchRawMarketData(queryParams: string = "") {
+    const res = await fetch(`/api/market/data?${queryParams}`, {
+        headers: COMMON_HEADERS
+    });
+    if (!res.ok) throw new Error("Data Fetch Failed");
+    return await res.json();
+}

@@ -2,9 +2,14 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-const BASE_URL = "/api/market";
-const PredictionChart = dynamic(() => import("../components/PredictionChart"), { ssr: false });
-const DistributionPieChart = dynamic(() => import("../components/DistributionPieChart"), { ssr: false });
+import PredictionChart from "../components/PredictionChart";
+import DistributionPieChart from "../components/DistributionPieChart";
+import {
+    fetchMarketStats,
+    fetchMarketDistribution,
+    runMarketSimulation,
+    fetchRawMarketData
+} from "../services/api";
 
 export default function MarketDashboard() {
     const [filter, setFilter] = useState("all");
@@ -46,30 +51,13 @@ export default function MarketDashboard() {
 
         setIsSimulating(true);
         try {
-            // Convert to numbers for the API
-            const payload = {
-                square_footage: Number(simulationParams.square_footage),
-                bedrooms: Number(simulationParams.bedrooms),
-                bathrooms: Number(simulationParams.bathrooms),
-                year_built: Number(simulationParams.year_built),
-                lot_size: Number(simulationParams.lot_size),
-                distance_to_city_center: Number(simulationParams.distance_to_city_center),
-                school_rating: Number(simulationParams.school_rating)
-            };
-
-            const res = await fetch(`${BASE_URL}/what-if`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
+            const data = await runMarketSimulation(simulationParams);
             setSimulationResult(data.projectedValue);
         } catch (err) {
             console.error("Simulation failed:", err);
+            alert("Simulation failed. Check if the market service is online.");
         } finally {
             setIsSimulating(false);
-            // Optionally reset or keep? User prefers reset.
-            // setSimulationParams({ ...INITIAL_SIM_STATE }); 
         }
     };
 
@@ -86,25 +74,22 @@ export default function MarketDashboard() {
         setSimulationResult(null);
     };
 
-    const fetchDashboardData = () => {
+    const fetchDashboardData = async () => {
         let qs = `?segment=${filter}`;
         if (minYear) qs += `&minYear=${minYear}`;
         if (maxYear) qs += `&maxYear=${maxYear}`;
 
-        fetch(`${BASE_URL}/stats${qs}`)
-            .then(res => res.json())
-            .then(data => setStats(data))
-            .catch(err => console.error("Failed to connect to Java backend:", err));
+        try {
+            const statsData = await fetchMarketStats(qs);
+            setStats(statsData);
 
-        fetch(`${BASE_URL}/distribution`)
-            .then(res => res.json())
-            .then(data => {
-                // Backend returns { values: number[], labels: string[] }
-                const vals: number[] = Array.isArray(data) ? data : (data.values ?? Object.values(data));
-                const lbls: string[] = data.labels ?? ["Starter", "Mid-Tier", "Luxury"];
-                setDistribution({ labels: lbls, values: vals });
-            })
-            .catch(err => console.error("Failed to fetch distribution:", err));
+            const distData = await fetchMarketDistribution();
+            const vals = Array.isArray(distData) ? distData : (distData.values ?? Object.values(distData));
+            const lbls = distData.labels ?? ["Starter", "Mid-Tier", "Luxury"];
+            setDistribution({ labels: lbls, values: vals });
+        } catch (err) {
+            console.error("Dashboard fetch failed:", err);
+        }
     };
 
     useEffect(() => {
@@ -124,10 +109,7 @@ export default function MarketDashboard() {
         queryParams.append("maxYear", "2025");
 
         try {
-            // Fetch raw data for a professional export
-            const res = await fetch(`/api/market/data?${queryParams.toString()}`);
-            if (!res.ok) throw new Error("Failed to fetch raw data");
-            const rawData = await res.json();
+            const rawData = await fetchRawMarketData(queryParams.toString());
 
             const headers = ["ID", "Square Footage", "Bedrooms", "Bathrooms", "Year Built", "Lot Size", "Distance to City", "School Rating", "Market Value (Rs)"];
             const rows = rawData.map((r: any, i: number) => [
@@ -168,8 +150,7 @@ export default function MarketDashboard() {
         // Fetch raw data for the detailed table in PDF
         let rawData = [];
         try {
-            const res = await fetch(`/api/market/data?segment=${filter === 'all' ? '' : filter}`);
-            if (res.ok) rawData = await res.json();
+            rawData = await fetchRawMarketData(`segment=${filter === 'all' ? '' : filter}`);
         } catch (e) {
             console.error("PDF Data Fetch Failed", e);
         }
@@ -195,7 +176,7 @@ export default function MarketDashboard() {
 
         doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
-        const summaryText = `This report analyzes ${stats.totalProperties.toLocaleString()} property records in the ${filter === 'all' ? 'entire market' : filter + ' segment'}. The average market valuation is currently pegged at Rs ${stats.avgPrice.toLocaleString('en-IN')}, with an average size of ${stats.avgSqft.toLocaleString()} sqft per unit.`;
+        const summaryText = `This report analyzes ${stats.totalProperties?.toLocaleString()} property records in the ${filter === 'all' ? 'entire market' : filter + ' segment'}. The average market valuation is currently pegged at Rs ${stats.avgPrice?.toLocaleString('en-IN')}, with an average size of ${stats.avgSqft?.toLocaleString()} sqft per unit.`;
         const splitSummary = doc.splitTextToSize(summaryText, pageW - 28);
         doc.text(splitSummary, 14, 65);
 
@@ -205,9 +186,9 @@ export default function MarketDashboard() {
         doc.text("2. Key Performance Indicators", 14, 85);
 
         const kpis = [
-            ["Total Sample Size", `${stats.totalProperties.toLocaleString()} Properties`],
-            ["Mean Market Price", `Rs ${stats.avgPrice.toLocaleString('en-IN')}`],
-            ["Mean Property Size", `${stats.avgSqft.toLocaleString()} Sq Ft`],
+            ["Total Sample Size", `${stats.totalProperties?.toLocaleString()} Properties`],
+            ["Mean Market Price", `Rs ${stats.avgPrice?.toLocaleString('en-IN')}`],
+            ["Mean Property Size", `${stats.avgSqft?.toLocaleString()} Sq Ft`],
             ["Leading Sector", stats.topSegment]
         ];
 
@@ -254,7 +235,7 @@ export default function MarketDashboard() {
             doc.text(String(item.bathrooms), 78, tableY);
             doc.text(String(item.yearBuilt), 108, tableY);
             doc.text(String(item.squareFootage), 138, tableY);
-            doc.text(`Rs ${item.price.toLocaleString()}`, 168, tableY);
+            doc.text(`Rs ${(item.price || 0).toLocaleString()}`, 168, tableY);
         });
 
         // ── Footer ──────────────────────────────────────────
@@ -295,15 +276,15 @@ export default function MarketDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                 <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-2xl backdrop-blur-xl shadow-sm dark:shadow-none">
                     <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Total Analyzed</h3>
-                    <p className="text-3xl font-bold text-zinc-900 dark:text-white">{stats.totalProperties.toLocaleString()}</p>
+                    <p className="text-3xl font-bold text-zinc-900 dark:text-white">{stats.totalProperties?.toLocaleString()}</p>
                 </div>
                 <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-2xl backdrop-blur-xl shadow-sm dark:shadow-none">
                     <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Avg Market Value</h3>
-                    <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">₹ {stats.avgPrice.toLocaleString('en-IN')}</p>
+                    <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">₹ {(stats.avgPrice || 0).toLocaleString('en-IN')}</p>
                 </div>
                 <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-2xl backdrop-blur-xl shadow-sm dark:shadow-none">
                     <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Avg Square Footage</h3>
-                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.avgSqft.toLocaleString('en-IN')} sqft</p>
+                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{(stats.avgSqft || 0).toLocaleString('en-IN')} sqft</p>
                 </div>
                 <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 p-6 rounded-2xl backdrop-blur-xl shadow-sm dark:shadow-none">
                     <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-semibold uppercase tracking-wider mb-2">Top Segment</h3>
@@ -461,7 +442,7 @@ export default function MarketDashboard() {
                             {simulationResult !== null && (
                                 <div className="w-full bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
                                     <p className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold uppercase tracking-wider mb-1">Simulated Market Value</p>
-                                    <h2 className="text-3xl font-black text-zinc-900 dark:text-white">₹ {simulationResult.toLocaleString('en-IN')}</h2>
+                                    <h2 className="text-3xl font-black text-zinc-900 dark:text-white">₹ {(simulationResult || 0).toLocaleString('en-IN')}</h2>
                                 </div>
                             )}
                         </div>
