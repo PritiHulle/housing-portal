@@ -128,7 +128,7 @@ export default function MarketDashboard() {
             ]);
 
             const csvContent = "\uFEFF" + [headers, ...rows]
-                .map(row => row.map(cell => `"${cell}"`).join(","))
+                .map((row: any[]) => row.map((cell: any) => `"${cell}"`).join(","))
                 .join("\n");
 
             const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
