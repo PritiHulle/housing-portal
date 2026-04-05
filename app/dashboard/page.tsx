@@ -68,7 +68,22 @@ export default function MarketDashboard() {
             console.error("Simulation failed:", err);
         } finally {
             setIsSimulating(false);
+            // Optionally reset or keep? User prefers reset.
+            // setSimulationParams({ ...INITIAL_SIM_STATE }); 
         }
+    };
+
+    const handleSimulatorReset = () => {
+        setSimulationParams({
+            square_footage: "",
+            bedrooms: "",
+            bathrooms: "",
+            year_built: "",
+            lot_size: "",
+            distance_to_city_center: "",
+            school_rating: ""
+        });
+        setSimulationResult(null);
     };
 
     const fetchDashboardData = () => {
@@ -427,13 +442,21 @@ export default function MarketDashboard() {
                         </div>
 
                         <div className="flex flex-col items-center gap-6">
-                            <button
-                                onClick={handleRunSimulation}
-                                disabled={isSimulating}
-                                className={`w-full py-4 rounded-xl font-bold text-white transition-all ${isSimulating ? 'bg-zinc-300 dark:bg-zinc-800' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-[0_0_20px_rgba(79,70,229,0.4)]'}`}
-                            >
-                                {isSimulating ? "Running ML Simulation..." : "Execute Simulation"}
-                            </button>
+                            <div className="w-full flex gap-3">
+                                <button
+                                    onClick={handleSimulatorReset}
+                                    className="px-6 py-4 rounded-xl font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
+                                >
+                                    Reset
+                                </button>
+                                <button
+                                    onClick={handleRunSimulation}
+                                    disabled={isSimulating}
+                                    className={`flex-1 py-4 rounded-xl font-bold text-white transition-all ${isSimulating ? 'bg-zinc-300 dark:bg-zinc-800' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-[0_0_20px_rgba(79,70,229,0.4)]'}`}
+                                >
+                                    {isSimulating ? "Simulating..." : "Run Simulator"}
+                                </button>
+                            </div>
 
                             {simulationResult !== null && (
                                 <div className="w-full bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">

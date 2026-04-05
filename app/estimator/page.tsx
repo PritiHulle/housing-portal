@@ -17,26 +17,28 @@ const FIELDS = [
     { name: "school_rating", label: "School Rating", icon: "🎓" }
 ];
 
-const FIELD_RULES: Record<string, { min: number, max: number, tooltip: string }> = {
-    square_footage: { min: 100, max: 50000, tooltip: "Valid range: 100 to 50,000 sq ft" },
-    bedrooms: { min: 0, max: 20, tooltip: "Valid range: 0 to 20 bedrooms" },
-    bathrooms: { min: 0, max: 20, tooltip: "Valid range: 0 to 20 bathrooms" },
-    year_built: { min: 1800, max: 2026, tooltip: "Valid range: Year 1800 to 2026" },
-    lot_size: { min: 0, max: 1000000, tooltip: "Valid range: 0 to 1,000,000 sq ft" },
-    distance_to_city_center: { min: 0, max: 200, tooltip: "Valid range: 0 to 200 miles" },
-    school_rating: { min: 0, max: 10, tooltip: "Valid range: 0 to 10" }
+const FIELD_RULES: Record<string, { min: number; max: number; tooltip: string }> = {
+    square_footage: { min: 800, max: 10000, tooltip: "Recommended: 800 - 10,000 sq ft" },
+    bedrooms: { min: 1, max: 10, tooltip: "Recommended: 1 - 10 beds" },
+    bathrooms: { min: 1, max: 8, tooltip: "Recommended: 1 - 8 baths" },
+    year_built: { min: 1950, max: 2026, tooltip: "Recommended: 1950 - 2026" },
+    lot_size: { min: 3000, max: 100000, tooltip: "Recommended: 3,000 - 100,000 sq ft" },
+    distance_to_city_center: { min: 0, max: 50, tooltip: "Recommended: 0 - 50 miles" },
+    school_rating: { min: 1, max: 10, tooltip: "Range: 1 - 10" },
+};
+
+const INITIAL_FORM: PropertyFields = {
+    square_footage: "",
+    bedrooms: "",
+    bathrooms: "",
+    year_built: "",
+    lot_size: "",
+    distance_to_city_center: "",
+    school_rating: ""
 };
 
 export default function Estimator() {
-    const [form, setForm] = useState<PropertyFields>({
-        square_footage: "",
-        bedrooms: "",
-        bathrooms: "",
-        year_built: "",
-        lot_size: "",
-        distance_to_city_center: "",
-        school_rating: ""
-    });
+    const [form, setForm] = useState<PropertyFields>(INITIAL_FORM);
 
     const [history, setHistory] = useLocalStorage<EstimateRecord[]>("estimate_history", []);
     const [isLoading, setIsLoading] = useState(false);
@@ -79,6 +81,7 @@ export default function Estimator() {
             }, ...prev]);
 
             setShowLatestResult(true);
+            setForm(INITIAL_FORM); // Audit Fix: Form reset as requested
 
         } catch (err) {
             console.error(err);
@@ -135,18 +138,30 @@ export default function Estimator() {
 
                     <div className="md:col-span-2 mt-4">
                         {showLatestResult && history.length > 0 && history[0].result === 0 && (
-                            <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-600 dark:text-amber-400 text-xs flex gap-2 items-center">
-                                <span>⚠️</span>
-                                <span>Unusual input combination detected. Try adjusting square footage or lot size for a better estimate.</span>
+                            <div className="mb-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-600 dark:text-amber-400 text-xs flex gap-3 items-center shadow-lg">
+                                <span className="text-xl">⚠️</span>
+                                <div>
+                                    <p className="font-bold mb-1">Anomalous Prediction (₹ 0)</p>
+                                    <p className="opacity-90 leading-relaxed">The model cannot calculate a price for these inputs. This usually happens when the **Lot Size (min 3000)** or **Year Built** is outside standard market ranges. Please try increasing the Lot Size or Sqft for a valid estimate.</p>
+                                </div>
                             </div>
                         )}
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
-                        >
-                            {isLoading ? "Running Model..." : "Generate Estimate"}
-                        </button>
+                        <div className="md:col-span-2 grid grid-cols-3 gap-4 mt-4">
+                            <button
+                                type="button"
+                                onClick={() => setForm(INITIAL_FORM)}
+                                className="col-span-1 py-4 rounded-xl font-bold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-[0.98]"
+                            >
+                                Reset
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="col-span-2 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] transform transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                            >
+                                {isLoading ? "Running Model..." : "Generate Estimate"}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>

@@ -7,13 +7,13 @@ import { useLocalStorage } from "../hooks/useLocalStorage";
 import { predictPropertyPrice } from "../services/api";
 
 const FIELDS = [
-    { name: "square_footage", label: "Sqft", min: 100, max: 50000, tooltip: "100-50,000 sq ft" },
-    { name: "bedrooms", label: "Beds", min: 0, max: 20, tooltip: "0-20 beds" },
-    { name: "bathrooms", label: "Baths", min: 0, max: 20, tooltip: "0-20 baths" },
-    { name: "year_built", label: "Year", min: 1800, max: 2026, tooltip: "1800-2026" },
-    { name: "lot_size", label: "Lot", min: 0, max: 1000000, tooltip: "0-1M sq ft" },
-    { name: "distance_to_city_center", label: "Dist", min: 0, max: 200, tooltip: "0-200 miles" },
-    { name: "school_rating", label: "Rating", min: 0, max: 10, tooltip: "Rating 0-10" }
+    { name: "square_footage", label: "Sqft", min: 800, max: 10000, tooltip: "800-10,000" },
+    { name: "bedrooms", label: "Beds", min: 1, max: 10, tooltip: "1-10" },
+    { name: "bathrooms", label: "Baths", min: 1, max: 8, tooltip: "1-8" },
+    { name: "year_built", label: "Year", min: 1950, max: 2026, tooltip: "1950-2026" },
+    { name: "lot_size", label: "Lot", min: 3000, max: 100000, tooltip: "3,000-100k" },
+    { name: "distance_to_city_center", label: "Dist", min: 0, max: 50, tooltip: "0-50 mi" },
+    { name: "school_rating", label: "Rating", min: 1, max: 10, tooltip: "1-10" }
 ] as const;
 
 export default function AnalysisPage() {
@@ -88,13 +88,24 @@ export default function AnalysisPage() {
                     <h1 className="text-3xl font-extrabold text-zinc-900 dark:text-white mb-2">Batch Property Analysis</h1>
                     <p className="text-zinc-600 dark:text-zinc-400 text-sm">Analyze multiple properties simultaneously to compare values.</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => {
+                            if (confirm("Reset the entire table?")) {
+                                setRows([Object.fromEntries(FIELDS.map(f => [f.name, ""]))]);
+                                setResults([]);
+                            }
+                        }}
+                        className="flex items-center justify-center px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-xl border border-zinc-200 dark:border-white/5 transition-all text-sm font-medium shadow-sm active:scale-95"
+                    >
+                        Reset
+                    </button>
                     <button
                         onClick={addRow}
                         className="flex items-center justify-center gap-2 px-5 py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-100 rounded-xl border border-zinc-300 dark:border-white/5 transition-all text-sm font-medium shadow-sm active:scale-95 whitespace-nowrap"
                     >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" /></svg>
-                        Add Property
+                        Add Row
                     </button>
                     <button
                         onClick={handleSubmit}
@@ -106,13 +117,13 @@ export default function AnalysisPage() {
                         ) : (
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" /></svg>
                         )}
-                        Run Analysis
+                        Run Batch
                     </button>
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-white/5 rounded-2xl shadow-md dark:shadow-xl overflow-hidden backdrop-blur-xl mb-8 overflow-x-auto">
-                <div className="min-w-[800px]">
+            <div className="bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-white/5 rounded-2xl shadow-md dark:shadow-xl p-1 overflow-hidden backdrop-blur-xl mb-8 overflow-x-auto">
+                <div className="min-w-[1000px]">
                     {/* Table Header */}
                     <div className="grid grid-cols-8 gap-4 p-5 border-b border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-zinc-950/40 text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                         {FIELDS.map(f => (
@@ -169,11 +180,11 @@ export default function AnalysisPage() {
                     </h3>
 
                     {results.some(r => r === 0) && (
-                        <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-600 dark:text-amber-400 text-sm flex gap-3 items-center shadow-sm">
+                        <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-600 dark:text-amber-400 text-sm flex gap-3 items-center shadow-lg">
                             <span className="text-xl">⚠️</span>
                             <div>
-                                <p className="font-bold">Anomalous Predictions Detected</p>
-                                <p className="opacity-90">One or more properties returned a ₹ 0 value. This usually happens when inputs (like Lot Size or Sqft) are significantly outside normal market ranges. Try using values closer to the suggested limits below.</p>
+                                <p className="font-bold mb-1">Anomalous Predictions Detected (₹ 0)</p>
+                                <p className="opacity-90 leading-relaxed">Some properties returned 0 because the inputs (e.g., **Lot Size min 3000**) are outside the model's high-accuracy training range. Try adjusting Lot Size or Sqft to get a valid estimate.</p>
                             </div>
                         </div>
                     )}
