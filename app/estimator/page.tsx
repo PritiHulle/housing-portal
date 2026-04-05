@@ -1,18 +1,21 @@
 "use client";
 
 import React from "react";
-const { useState, useEffect } = React;
+import { useState } from "react";
 import PredictionChart from "../components/PredictionChart";
+import { EstimateRecord, PropertyFields } from "../types";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { predictPropertyPrice } from "../services/api";
 
-const FIELD_LABELS: Record<string, string> = {
-    square_footage: "Square Footage (sq ft)",
-    bedrooms: "Bedrooms",
-    bathrooms: "Bathrooms",
-    year_built: "Year Built",
-    lot_size: "Lot Size (sq ft)",
-    distance_to_city_center: "Distance to Center (miles)",
-    school_rating: "School Rating (1-10)"
-};
+const FIELDS = [
+    { name: "square_footage", label: "Square Footage", icon: "📏" },
+    { name: "bedrooms", label: "Bedrooms", icon: "🛏️" },
+    { name: "bathrooms", label: "Bathrooms", icon: "🚿" },
+    { name: "year_built", label: "Year Built", icon: "📅" },
+    { name: "lot_size", label: "Lot Size", icon: "🌳" },
+    { name: "distance_to_city_center", label: "City Distance", icon: "🏙️" },
+    { name: "school_rating", label: "School Rating", icon: "🎓" }
+];
 
 const FIELD_RULES: Record<string, { min: number, max: number, tooltip: string }> = {
     square_footage: { min: 100, max: 50000, tooltip: "Valid range: 100 to 50,000 sq ft" },
@@ -24,15 +27,8 @@ const FIELD_RULES: Record<string, { min: number, max: number, tooltip: string }>
     school_rating: { min: 0, max: 10, tooltip: "Valid range: 0 to 10" }
 };
 
-type EstimateRecord = {
-    id: string;
-    timestamp: string;
-    details: Record<string, string>;
-    result: number;
-};
-
 export default function Estimator() {
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<PropertyFields>({
         square_footage: "",
         bedrooms: "",
         bathrooms: "",
@@ -42,33 +38,13 @@ export default function Estimator() {
         school_rating: ""
     });
 
-    // Use history array instead of just a single result. 
-    // The latest result is just the last item in the history.
-    const [history, setHistory] = useState<EstimateRecord[]>([]);
-
-    useEffect(() => {
-        const saved = localStorage.getItem("estimate_history");
-        if (saved) {
-            try {
-                setHistory(JSON.parse(saved));
-            } catch (e) {
-                console.error("Failed to parse history", e);
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        if (history.length > 0) {
-            localStorage.setItem("estimate_history", JSON.stringify(history));
-        }
-    }, [history]);
-
+    const [history, setHistory] = useLocalStorage<EstimateRecord[]>("estimate_history", []);
     const [isLoading, setIsLoading] = useState(false);
     const [showLatestResult, setShowLatestResult] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-        setShowLatestResult(false); // Hide the card if user starts changing values
+        setShowLatestResult(false);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -91,15 +67,7 @@ export default function Estimator() {
                 }
             }
 
-            const res = await fetch("/api/predict", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-
-            if (!res.ok) throw new Error("API response was not ok");
-
-            const data = await res.json();
+            const data = await predictPropertyPrice(payload);
             const predictionNum = Math.max(0, Array.isArray(data.prediction) ? data.prediction[0] : (data.prediction || 0));
 
             // Prepend to history (Top of the list)
@@ -140,23 +108,24 @@ export default function Estimator() {
                 <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-64 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none" />
 
                 <form onSubmit={handleSubmit} className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {Object.entries(form).map(([key, val]) => (
-                        <div key={key} className={key === 'school_rating' ? "md:col-span-2" : ""}>
-                            <label htmlFor={key} className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                                {FIELD_LABELS[key] || key}
+                    {FIELDS.map(({ name, label, icon }) => (
+                        <div key={name} className="flex flex-col gap-2">
+                            <label htmlFor={name} className="flex items-center gap-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 ml-1">
+                                <span className="text-base">{icon}</span>
+                                {label}
                             </label>
                             <input
-                                id={key}
-                                name={key}
+                                id={name}
+                                name={name}
                                 type="number"
                                 step="any"
-                                value={val}
+                                value={form[name as keyof PropertyFields]}
                                 onChange={handleChange}
-                                placeholder={`e.g. ${key === 'year_built' ? '2015' : '0'}`}
+                                placeholder={`e.g. ${name === 'year_built' ? '2015' : '0'}`}
                                 required
-                                min={FIELD_RULES[key]?.min}
-                                max={FIELD_RULES[key]?.max}
-                                title={FIELD_RULES[key]?.tooltip}
+                                min={FIELD_RULES[name]?.min}
+                                max={FIELD_RULES[name]?.max}
+                                title={FIELD_RULES[name]?.tooltip}
                                 className="w-full bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-300 dark:border-white/5 rounded-xl px-4 py-3 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-inner"
                             />
                         </div>

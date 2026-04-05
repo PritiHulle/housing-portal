@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import PredictionChart from "../components/PredictionChart";
+import { AnalysisRecord } from "../types";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { predictPropertyPrice } from "../services/api";
 
 const FIELDS = [
     { name: "square_footage", label: "Sqft", min: 100, max: 50000, tooltip: "100-50,000 sq ft" },
@@ -13,39 +16,13 @@ const FIELDS = [
     { name: "school_rating", label: "Rating", min: 0, max: 10, tooltip: "Rating 0-10" }
 ] as const;
 
-type AnalysisRecord = {
-    id: string;
-    timestamp: string;
-    propertyCount: number;
-    avgValue: number;
-    results: number[];
-    rows: Record<string, string>[];
-};
-
 export default function AnalysisPage() {
     const [rows, setRows] = useState<Record<string, string>[]>([
         Object.fromEntries(FIELDS.map(f => [f.name, ""]))
     ]);
     const [results, setResults] = useState<number[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [history, setHistory] = useState<AnalysisRecord[]>([]);
-
-    useEffect(() => {
-        const saved = localStorage.getItem("analysis_history");
-        if (saved) {
-            try {
-                setHistory(JSON.parse(saved));
-            } catch (e) {
-                console.error("Failed to parse history", e);
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        if (history.length > 0) {
-            localStorage.setItem("analysis_history", JSON.stringify(history));
-        }
-    }, [history]);
+    const [history, setHistory] = useLocalStorage<AnalysisRecord[]>("analysis_history", []);
 
     const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const newRows = [...rows];
@@ -78,15 +55,7 @@ export default function AnalysisPage() {
                 return;
             }
 
-            const res = await fetch("/api/predict", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ data: formatted })
-            });
-
-            if (!res.ok) throw new Error("API error");
-
-            const data = await res.json();
+            const data = await predictPropertyPrice({ data: formatted });
             const predictions = data.predictions.map((p: number) => Math.max(0, p));
             setResults(predictions);
 
