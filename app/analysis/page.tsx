@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PredictionChart from "../components/PredictionChart";
 
 const FIELDS = [
@@ -13,12 +13,39 @@ const FIELDS = [
     { name: "school_rating", label: "Rating", min: 0, max: 10, tooltip: "Rating 0-10" }
 ] as const;
 
+type AnalysisRecord = {
+    id: string;
+    timestamp: string;
+    propertyCount: number;
+    avgValue: number;
+    results: number[];
+    rows: Record<string, string>[];
+};
+
 export default function AnalysisPage() {
     const [rows, setRows] = useState<Record<string, string>[]>([
         Object.fromEntries(FIELDS.map(f => [f.name, ""]))
     ]);
     const [results, setResults] = useState<number[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [history, setHistory] = useState<AnalysisRecord[]>([]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem("analysis_history");
+        if (saved) {
+            try {
+                setHistory(JSON.parse(saved));
+            } catch (e) {
+                console.error("Failed to parse history", e);
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        if (history.length > 0) {
+            localStorage.setItem("analysis_history", JSON.stringify(history));
+        }
+    }, [history]);
 
     const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const newRows = [...rows];
@@ -60,8 +87,22 @@ export default function AnalysisPage() {
             if (!res.ok) throw new Error("API error");
 
             const data = await res.json();
-            // Bound negative extrapolations from simple linear models to 0
-            setResults(data.predictions.map((p: number) => Math.max(0, p)));
+            const predictions = data.predictions.map((p: number) => Math.max(0, p));
+            setResults(predictions);
+
+            // Save to history
+            const avg = predictions.length > 0
+                ? predictions.reduce((a: number, b: number) => a + b, 0) / predictions.length
+                : 0;
+
+            setHistory(prev => [{
+                id: Math.random().toString(36).substr(2, 9),
+                timestamp: new Date().toISOString(),
+                propertyCount: predictions.length,
+                avgValue: avg,
+                results: predictions,
+                rows: [...rows]
+            }, ...prev]);
         } catch (err) {
             console.error(err);
             alert("Error calling batch prediction API.");
@@ -167,6 +208,79 @@ export default function AnalysisPage() {
                     <div className="bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-white/5 rounded-2xl p-6 shadow-md dark:shadow-xl backdrop-blur-xl mb-12">
                         <h4 className="text-lg font-semibold text-zinc-900 dark:text-white mb-6">Comparative Estimate Chart</h4>
                         <PredictionChart results={results} />
+                    </div>
+                </div>
+            )}
+
+            {/* Analysis History */}
+            {history.length > 0 && (
+                <div className="mt-12 mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-white">
+                            <span className="w-2 h-6 rounded bg-blue-500 inline-block"></span>
+                            Recent Analyses
+                        </h3>
+                        <button
+                            onClick={() => {
+                                if (confirm("Clear all batch analysis history?")) {
+                                    setHistory([]);
+                                    localStorage.removeItem("analysis_history");
+                                }
+                            }}
+                            className="text-xs text-zinc-400 hover:text-red-500 flex items-center gap-1 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-500/10"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                            Clear History
+                        </button>
+                    </div>
+
+                    <div className="bg-white dark:bg-zinc-950/40 border border-zinc-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-sm">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-zinc-50 dark:bg-zinc-900/50 text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold border-b border-zinc-200 dark:border-white/5">
+                                    <th className="px-6 py-4">Date & Time</th>
+                                    <th className="px-6 py-4">Properties</th>
+                                    <th className="px-6 py-4">Avg Estimated Value</th>
+                                    <th className="px-6 py-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-zinc-200 dark:divide-white/5">
+                                {history.map((item) => (
+                                    <tr key={item.id} className="group hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                                                {new Date(item.timestamp).toLocaleDateString()}
+                                            </div>
+                                            <div className="text-xs text-zinc-500 dark:text-zinc-500 font-mono">
+                                                {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="px-2 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold border border-blue-500/20">
+                                                {item.propertyCount} Units
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                                ₹ {item.avgValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button
+                                                onClick={() => {
+                                                    setRows(item.rows);
+                                                    setResults(item.results);
+                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                }}
+                                                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                            >
+                                                Restore Analysis
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             )}
