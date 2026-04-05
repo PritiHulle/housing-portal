@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-const BASE_URL = "https://market-backend-fb2j.onrender.com";
+const BASE_URL = "/api/market";
 const PredictionChart = dynamic(() => import("../components/PredictionChart"), { ssr: false });
 const DistributionPieChart = dynamic(() => import("../components/DistributionPieChart"), { ssr: false });
 
@@ -57,7 +57,7 @@ export default function MarketDashboard() {
                 school_rating: Number(simulationParams.school_rating)
             };
 
-            const res = await fetch(`${BASE_URL}/api/market/what-if`, {
+            const res = await fetch(`${BASE_URL}/what-if`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -76,12 +76,12 @@ export default function MarketDashboard() {
         if (minYear) qs += `&minYear=${minYear}`;
         if (maxYear) qs += `&maxYear=${maxYear}`;
 
-        fetch(`${BASE_URL}/api/market/stats${qs}`)
+        fetch(`${BASE_URL}/stats${qs}`)
             .then(res => res.json())
             .then(data => setStats(data))
             .catch(err => console.error("Failed to connect to Java backend:", err));
 
-        fetch(`${BASE_URL}/api/market/distribution`)
+        fetch(`${BASE_URL}/distribution`)
             .then(res => res.json())
             .then(data => {
                 // Backend returns { values: number[], labels: string[] }

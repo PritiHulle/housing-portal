@@ -91,7 +91,7 @@ export default function Estimator() {
                 }
             }
 
-            const res = await fetch("https://housing-api-n7yg.onrender.com/predict", {
+            const res = await fetch("/api/predict", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
